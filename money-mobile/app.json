@@ -22,6 +22,11 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "expo": {
+        "newArchEnabled": true
     }
+    
+    
   }
 }

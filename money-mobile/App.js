@@ -10,7 +10,7 @@ const Stack = createNativeStackNavigator();
 function App() {
   return (
   <> 
-    <SafeAreaView style={{ flex: 1 }}>
+    
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <NavigationContainer>
           <Stack.Navigator initialRouteName="home">
@@ -19,7 +19,7 @@ function App() {
           </Stack.Navigator>
         </NavigationContainer>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    
   </>   
   );
 }

@@ -1,9 +1,10 @@
-import { Text, TextInput, View, TouchableOpacity, Image, TouchableWithoutFeedback,Keyboard } from "react-native";
+import { Text, TextInput, View, TouchableOpacity, Image, TouchableWithoutFeedback,Keyboard, Alert } from "react-native";
 import {styles} from "./cad-despesa.style.js";
 import icons from "../../constants/icons.js";
 import {Picker} from '@react-native-picker/picker'; // npx expo install @react-native-picker/picker
 //import RNPickerSelect from 'react-native-picker-select';
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import api from "../../services/api.js";
 
 const CadDespesa = (props) => {
 
@@ -12,16 +13,73 @@ const CadDespesa = (props) => {
     const [descricao,setDescricao] = useState("");
     const [categoria, setCategoria] = useState("");
 
-    const handleSalvar = () =>{
-        props.navigation.navigate("home");
+    const handleSalvar = async () =>{
+        try{
+            if(props.route.params.id>0){
+                await api.put("despesas/"+props.route.params.id,{
+                    descricao: descricao,
+                    categoria: categoria,
+                    valor: valor
+                });
+            } else{
+                await api.post("despesas/",{
+                    descricao: descricao,
+                    categoria: categoria,
+                    valor: valor
+                });
+    
+            }
+ 
+            props.navigation.navigate("home");
 
-    }
+        }catch (error){
+            console.log(error);
+            Alert.alert("error ao salvar dados");
 
-    const handleExcluir = () =>{
-        props.navigation.navigate("home");
+        }
         
     }
 
+    const handleExcluir = async () =>{
+        try{
+            await api.delete("/despesas/"+props.route.params.id);
+            props.navigation.navigate("home");
+
+        }catch(error){
+            console.log(error);
+            Alert.alert("Erro ao excluir dados");
+        }
+        
+        
+    }
+
+    const DadosDespesa = async (id) => {
+        try{
+            const response = await api.get("/despesas/"+id);
+            setDescricao(response.data.descricao);
+            setCategoria(response.data.categoria);
+            setValor(response.data.valor);
+
+        }catch (error){
+            console.log(error);
+            Alert.alert("erro ao buscar dados");
+
+        }
+    }
+
+    useEffect(()=>{
+        // tratar texto do header da tela
+        props.navigation.setOptions(
+            {title: props.route.params.id>0 ? "Editar despesa" : "Nova despesa"
+        
+        });
+
+        //buscar dado da despesa na api
+        if(props.route.params.id>0){
+            DadosDespesa(props.route.params.id);
+        }
+
+    },[]);
 
 
     return <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -29,12 +87,12 @@ const CadDespesa = (props) => {
         <View style={styles.container}>
             <View style={styles.containerField}>
                 <Text style={styles.inputLabel}>Valor</Text>
-                <TextInput placeholder="0,00" style={styles.inputValor} defaultValue="0" keyboardType="decimal-pad"></TextInput>
+                <TextInput placeholder="0,00" style={styles.inputValor} defaultValue={valor} keyboardType="decimal-pad" onChangeText={(texto)=>setValor(texto)}/>
             </View>
 
             <View style={styles.containerField}>
                 <Text style={styles.inputLabel}>Descricao</Text>
-                <TextInput placeholder="aluguel" style={styles.inputText} defaultValue=""></TextInput>
+                <TextInput placeholder="aluguel" style={styles.inputText} defaultValue={descricao} onChangeText={(texto)=>setDescricao(texto)}/>
             </View>
 
             <View style={styles.containerField}>
@@ -46,7 +104,7 @@ const CadDespesa = (props) => {
                         <Picker.Item label="Casa" value="Casa" />
                         <Picker.Item label="Lazer" value="Lazer" />
                         <Picker.Item label="Mercado" value="Mercado" />
-                        <Picker.Item label="Educacao" value="Educacao" />
+                        <Picker.Item label="Educação" value="Educação" />
                         <Picker.Item label="Viagem" value="Viagem" />
                         
                     </Picker>

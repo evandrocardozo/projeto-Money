@@ -3,10 +3,11 @@ import {styles} from "./despesa.style.js";
 //import icons from "../../constants/icons.js";
 
 const Despesa = (props) => {
-    return <TouchableOpacity onPress={()=>props.onClick(0)}>
+    //console.log('icon prop:', props.icon);
+    return <TouchableOpacity onPress={()=>props.onClick(props.id)}>
         <View style={styles.despesa}>
             <View style={styles.containerIcon}>
-                <Image style={styles.despesaIcon} source={props.icon}/>
+                <Image style={styles.despesaIcon} source={{ uri: props.icon }}/>
             </View>
 
             <View style={styles.containerCategoria}>
@@ -15,7 +16,7 @@ const Despesa = (props) => {
             </View>
 
             <View style={styles.containerValor}>
-                <Text style={styles.despesaValor}>{props.valor.toLocaleString('pt-BR',{minimumFractionDigits:2})}</Text>
+                <Text style={styles.despesaValor}>{Number(props.valor).toLocaleString('pt-BR',{minimumFractionDigits:2})}</Text>
             </View>
             
         </View>

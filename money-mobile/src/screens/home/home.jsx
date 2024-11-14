@@ -2,7 +2,9 @@ import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import icons from "../../constants/icons.js";
 import {styles} from "./home.style.js";
 import Despesa from "../../components/despesa/despesa.jsx";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import api from "../../services/api.js";
+import { useFocusEffect } from "@react-navigation/native";
 
 const Home = (props) =>{
 
@@ -21,37 +23,48 @@ const Home = (props) =>{
 
     const OpenDespesa = (id) => {
         //console.log("cadastrar despesa")
-        props.navigation.navigate("despesa");
+        props.navigation.navigate("despesa", {id:id});
     }
 
-    const ListarDespesas = () => {
-        // simular acesso a API
+    const ListarDespesas = async () => {
+            
+        try{
+            // acesso a API
+            const response = await api.get("/despesas");
 
-        // despesas total
-        let soma = 0;
-        for (var i=0; i<dados.length; i++)
-            soma = soma + dados[i].valor;
+            // lista de despesas
+            setDespesas(response.data);
 
-        // loop alternativo
-        /*
-        const soma = dados.reduce(function(prev,current){
-            return prev+current.valor
-        },0);
-        */
+            // despesas total
+            let soma = 0;
+            for (var i=0; i<response.data.length; i++)
+                soma = soma + Number(response.data[i].valor);
 
-        // atualzia variavel de estado
-        setTotal(soma);
+            // loop alternativo
+            /*
+            const soma = dados.reduce(function(prev,current){
+                return prev+current.valor
+            },0);
+            */
 
-        // lista de despesas
-        setDespesas(dados);
+            // atualzia variavel de estado
+            setTotal(soma);
+
+        } catch (error){
+
+        }
+
+        
 
     }
 
     // hook
-    useEffect(()=>{
+    useFocusEffect(useCallback(()=>{
         ListarDespesas();
 
-    },[]);
+    },[]));
+
+    
 
 
     return <View style={styles.container}>
@@ -79,7 +92,7 @@ const Home = (props) =>{
                 
                 {
                     despesas.map((desp)=>{
-                        return <Despesa key={desp.id} id={desp.id} icon={desp.icon} categoria ={desp.categoria} descricao={desp.descricao} valor={desp.valor} onClick={OpenDespesa}/>
+                        return <Despesa key={desp.id} id={desp.id} icon={desp.categoriaDetalhe.icon} categoria ={desp.categoria} descricao={desp.descricao} valor={desp.valor} onClick={OpenDespesa}/>
                     })
                 }
                 
